@@ -1,101 +1,91 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { BrowserRouter, Link, NavLink, Route, Routes } from 'react-router-dom';
 import Home from './Home';
-import Orders from './Orders';   // หน้า Orders
+import Orders from './Orders';
 import BookForm from './BookForm';
 import BookList from './BookList';
+import { selectCart, selectFavorites } from '../store/bookSlice';
+import { BookIcon, CartIcon, DashboardIcon, HeartIcon } from './icons';
+
+const links = [
+  { to: '/', label: 'Store', end: true },
+  { to: '/orders', label: 'My Orders' },
+  { to: '/books/list', label: 'Admin Catalog' },
+  { to: '/books/new', label: 'New Entry' },
+];
 
 const RoutingApp: React.FC = () => {
-    return (
-        <BrowserRouter>
-            <div className="min-h-screen bg-white text-gray-900 font-sans flex flex-col">
+  const cart = useSelector(selectCart);
+  const favorites = useSelector(selectFavorites);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-                {/*  Navbar ส่วนบน */}
-                <nav className="backdrop-blur-md bg-gray-900/60 border-b border-pink-500/40 shadow-lg shadow-pink-900/20 sticky top-0 z-50">
-                    <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                        {/* Logo */}
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent">
-                            AliveBooks
-                        </h1>
+  return (
+    <BrowserRouter>
+      <div className="app-shell">
+        <header className="site-header">
+          <div className="container site-header__inner">
+            <Link to="/" className="brand brand--interactive">
+              <span className="brand-mark">
+                <BookIcon className="app-icon" />
+              </span>
+              <span className="brand-copy">
+                <span className="brand__title">AliveBook</span>
+                <span className="brand__caption">Storefront for readers, separate tools for admins.</span>
+              </span>
+            </Link>
 
-                        {/* Menu Navigation */}
-                        <ul className="flex space-x-6 text-lg">
-                            {/*  ลิงก์ไปหน้า Home */}
-                            <li>
-                                <NavLink
-                                    to="/"
-                                    end
-                                    className={({ isActive }) =>
-                                        `transition hover:text-pink-400 ${isActive ? 'text-pink-400 font-semibold border-b-2 border-pink-400 pb-1' : 'text-gray-300'}`
-                                    }
-                                >
-                                    Home
-                                </NavLink>
-                            </li>
+            <nav className="site-nav" aria-label="Main navigation">
+              {links.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) =>
+                    `site-nav__link ${isActive ? 'site-nav__link--active' : ''}`.trim()
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </nav>
 
-                            {/*  ลิงก์ไปหน้า Orders */}
-                            <li>
-                                <NavLink
-                                    to="/orders"
-                                    className={({ isActive }) =>
-                                        `transition hover:text-pink-400 ${isActive ? 'text-pink-400 font-semibold border-b-2 border-pink-400 pb-1' : 'text-gray-300'}`
-                                    }
-                                >
-                                    Orders
-                                </NavLink>
-                            </li>
-
-                            {/*  ลิงก์ไปหน้าแสดงรายการหนังสือ */}
-                            <li>
-                                <NavLink
-                                    to="/books/list"
-                                    className={({ isActive }) =>
-                                        `transition hover:text-pink-400 ${isActive ? 'text-pink-400 font-semibold border-b-2 border-pink-400 pb-1' : 'text-gray-300'}`
-                                    }
-                                >
-                                    Manage Books
-                                </NavLink>
-                            </li>
-
-                            {/*  ลิงก์ไปหน้าเพิ่มหนังสือ */}
-                            <li>
-                                <NavLink
-                                    to="/books/new"
-                                    className={({ isActive }) =>
-                                        `transition hover:text-pink-400 ${isActive ? 'text-pink-400 font-semibold border-b-2 border-pink-400 pb-1' : 'text-gray-300'}`
-                                    }
-                                >
-                                    Add Book
-                                </NavLink>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-
-                {/*  Main Content ของแต่ละ Route */}
-                <main className="flex-1 w-full px-4 sm:px-6 lg:px-8">
-                    <Routes>
-                        {/*  Route สำหรับหน้า Home */}
-                        <Route path="/" element={<Home />} />
-
-                        {/*  Route สำหรับหน้า Orders */}
-                        <Route path="/orders" element={<Orders />} />
-
-                        {/*  Route สำหรับหน้าแสดงรายการหนังสือ */}
-                        <Route path="/books/list" element={<BookList />} />
-
-                        {/*  Route สำหรับหน้าเพิ่มหนังสือ */}
-                        <Route path="/books/new" element={<BookForm />} />
-                    </Routes>
-                </main>
-
-                {/*  Footer ของเว็บไซต์ */}
-                <footer className="text-center py-6 border-t border-gray-700 text-gray-400 mt-8">
-                    © {new Date().getFullYear()} BookStore — Crafted with ❤️
-                </footer>
+            <div className="header-actions" aria-label="Quick stats and shortcuts">
+              <Link to="/" className="header-icon-link" title="Favorites saved">
+                <HeartIcon className="app-icon" />
+                <span className="header-icon-link__badge">{favorites.length}</span>
+              </Link>
+              <Link to="/orders" className="header-icon-link" title="Items in cart">
+                <CartIcon className="app-icon" />
+                <span className="header-icon-link__badge">{cartCount}</span>
+              </Link>
+              <Link to="/books/list" className="header-icon-link" title="Open admin dashboard">
+                <DashboardIcon className="app-icon" />
+              </Link>
             </div>
-        </BrowserRouter>
-    );
+          </div>
+        </header>
+
+        <main className="page-section">
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/books/list" element={<BookList />} />
+              <Route path="/books/new" element={<BookForm />} />
+            </Routes>
+          </div>
+        </main>
+
+        <footer className="site-footer">
+          <div className="container site-footer__inner">
+            <span>Minimal, quiet, and more visual than the previous version.</span>
+            <span>© {new Date().getFullYear()} AliveBook</span>
+          </div>
+        </footer>
+      </div>
+    </BrowserRouter>
+  );
 };
 
 export default RoutingApp;

@@ -1,114 +1,130 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { type AppDispatch } from '../store';
-import {
-    fetchBooks,
-    deleteBook,
-    selectBooks,
-    selectLoading,
-    selectError,
-    type Book,
-} from '../store/bookSlice';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import BookForm from './BookForm';
+import {
+  deleteBook,
+  fetchBooks,
+  selectBooks,
+  selectError,
+  selectLoading,
+  type Book,
+} from '../store/bookSlice';
+import { type AppDispatch } from '../store';
+import { PencilIcon, PlusIcon, TrashIcon } from './icons';
+
+const fallbackCover =
+  'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80';
 
 const BookList: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
+  const books = useSelector(selectBooks);
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
+  const [editingBook, setEditingBook] = useState<Book | undefined>(undefined);
 
-    // ดึงข้อมูลหนังสือทั้งหมดจาก Redux store
-    const books = useSelector(selectBooks);
-    const loading = useSelector(selectLoading);
-    const error = useSelector(selectError);
+  useEffect(() => {
+    dispatch(fetchBooks());
+  }, [dispatch]);
 
-    // เก็บสถานะหนังสือที่กำลังแก้ไข
-    const [editingBook, setEditingBook] = useState<Book | undefined>(undefined);
+  const totalInventoryValue = useMemo(
+    () => books.reduce((sum, book) => sum + Number(book.price || 0), 0),
+    [books],
+  );
 
-    //  Fetch books จาก backend ตอน component โหลดครั้งแรก
-    useEffect(() => {
-        dispatch(fetchBooks());
-    }, [dispatch]);
+  if (loading) {
+    return <div className="empty-state">Loading books…</div>;
+  }
 
-    //  Handler สำหรับเลือกหนังสือเพื่อแก้ไข
-    const handleEdit = (book: Book) => setEditingBook(book);
+  if (error) {
+    return <div className="empty-state">Error: {error}</div>;
+  }
 
-    //  Handler สำหรับยกเลิกการแก้ไข
-    const handleCancelEdit = () => setEditingBook(undefined);
-
-    // แสดงข้อความระหว่างโหลด / error / ข้อมูลไม่ถูกต้อง
-    if (loading) return <p className="text-center text-gray-500">Loading books...</p>;
-    if (error) return <p className="text-center text-red-500">Error: {error}</p>;
-    if (!Array.isArray(books))
-        return <p className="text-center text-red-500">Invalid book data received.</p>;
-
-    return (
-        <div className="p-8 bg-white min-h-screen">
-            <h2 className="text-3xl font-bold mb-6 text-center text-pink-500">
-                Book Management
-            </h2>
-
-            {/*  แสดงรายการหนังสือ */}
-            {books.length === 0 ? (
-                <p className="text-center text-gray-500 text-lg">No books found — try adding one!</p>
-            ) : (
-                <div className="flex flex-col gap-4">
-                    {books.map((book) => (
-                        <div
-                            key={book.id}
-                            className="flex items-center bg-pink-50 border border-pink-200 rounded-xl p-4 shadow-sm hover:shadow-pink-300 transition"
-                        >
-                            {/*  แสดงรูปหนังสือ */}
-                            <div className="w-24 h-36 flex-shrink-0 rounded-lg overflow-hidden shadow-md mr-4">
-                                <img
-                                    src={book.image_url || "https://cdn.pixabay.com/photo/2020/09/30/12/18/books-5615562_1280.jpg"}
-                                    alt={book.bookname}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-
-                            {/*  ข้อมูลหนังสือ */}
-                            <div className="flex-1">
-                                <h3 className="text-xl font-semibold text-pink-500">{book.bookname}</h3>
-                                <p className="text-gray-600 text-sm">Author: {book.ISBN}</p>
-                                <p className="text-gray-700 font-medium mt-1">
-                                     ${(Number(book.price) || 0).toFixed(2)}
-                                </p>
-                            </div>
-
-                            {/*  ปุ่มแก้ไข / ลบ */}
-                            <div className="flex flex-col gap-2 ml-4">
-                                {/* Edit → set editingBook */}
-                                <button
-                                    onClick={() => handleEdit(book)}
-                                    className="bg-blue-400 text-white px-3 py-1 rounded-md hover:bg-blue-500 transition"
-                                >
-                                    Edit
-                                </button>
-
-                                {/* Delete → dispatch deleteBook */}
-                                <button
-                                    onClick={() => dispatch(deleteBook(book.id))}
-                                    className="bg-red-400 text-white px-3 py-1 rounded-md hover:bg-red-500 transition"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/*  ฟอร์มแก้ไขหนังสือ */}
-            {editingBook && (
-                <div className="mt-8 bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300">
-                    <h3 className="text-xl font-semibold text-pink-500 mb-4">
-                         Edit Book — {editingBook.bookname}
-                    </h3>
-
-                    {/* ส่ง props editingBook และ onCancelEdit ไปให้ BookForm */}
-                    <BookForm editingBook={editingBook} onCancelEdit={handleCancelEdit} />
-                </div>
-            )}
+  return (
+    <div className="admin-page">
+      <section className="section-heading">
+        <div>
+          <span className="section-eyebrow">Admin only · catalog workspace</span>
+          <h1 className="page-title">A tidier dashboard for curating the catalog.</h1>
+          <p className="muted">This area is for admins only: the left side manages inventory and the right side edits the selected book.</p>
         </div>
-    );
+        <Link to="/books/new" className="button button--dark">
+          <PlusIcon className="button__icon" />
+          Add book
+        </Link>
+      </section>
+
+      <div className="admin-layout admin-layout--refined">
+        <section className="surface admin-shelf">
+          <div className="admin-shelf__stats">
+            <div className="stats-item">
+              <span className="muted">Titles</span>
+              <strong>{books.length}</strong>
+            </div>
+            <div className="stats-item">
+              <span className="muted">Catalog value</span>
+              <strong>${totalInventoryValue.toFixed(2)}</strong>
+            </div>
+            <div className="stats-item">
+              <span className="muted">Editing</span>
+              <strong>{editingBook ? editingBook.bookname : 'Nothing selected'}</strong>
+            </div>
+          </div>
+
+          {books.length === 0 ? (
+            <div className="empty-state">No books found. Add one to start building the collection.</div>
+          ) : (
+            <div className="admin-list-grid">
+              {books.map((book) => (
+                <article className="admin-row-card" key={book.id}>
+                  <div className="admin-row-card__image">
+                    <img src={book.image_url || fallbackCover} alt={book.bookname} />
+                  </div>
+                  <div className="admin-row-card__content">
+                    <span className="section-eyebrow">Book #{book.id}</span>
+                    <h3>{book.bookname}</h3>
+                    <p className="muted">{book.ISBN}</p>
+                  </div>
+                  <div className="admin-row-card__meta">
+                    <strong className="price-tag">${Number(book.price).toFixed(2)}</strong>
+                    <div className="card-icon-actions">
+                      <button className="icon-action" onClick={() => setEditingBook(book)} title="Edit book">
+                        <PencilIcon className="app-icon" />
+                      </button>
+                      <button
+                        className="icon-action icon-action--danger"
+                        onClick={() => {
+                          if (editingBook?.id === book.id) {
+                            setEditingBook(undefined);
+                          }
+                          dispatch(deleteBook(book.id));
+                        }}
+                        title="Delete book"
+                      >
+                        <TrashIcon className="app-icon" />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <aside className="admin-editor-panel">
+          {editingBook ? (
+            <BookForm editingBook={editingBook} onCancelEdit={() => setEditingBook(undefined)} mode="panel" />
+          ) : (
+            <div className="sidebar-card sidebar-card--empty">
+              <span className="section-eyebrow">Admin edit studio</span>
+              <h3>Select a book to edit</h3>
+              <p className="muted">Choose the pencil icon from any card and the editor will appear here with a live preview.</p>
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  );
 };
 
 export default BookList;
