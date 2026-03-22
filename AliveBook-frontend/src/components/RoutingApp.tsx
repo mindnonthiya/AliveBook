@@ -10,9 +10,9 @@ import { BookIcon, CartIcon, DashboardIcon, HeartIcon } from './icons';
 
 const links = [
   { to: '/', label: 'Store', end: true },
-  { to: '/orders', label: 'My Orders' },
-  { to: '/books/list', label: 'Admin Catalog' },
-  { to: '/books/new', label: 'New Entry' },
+  { to: '/orders', label: 'Orders' },
+  { to: '/books/list', label: 'Admin' },
+  { to: '/books/new', label: 'New Book' },
 ];
 
 const RoutingApp: React.FC = () => {
