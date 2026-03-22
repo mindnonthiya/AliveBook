@@ -1,12 +1,9 @@
 import React from 'react';
 import RoutingApp from './components/RoutingApp';
+import './App.css';
 
 const App: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-white">
-      <RoutingApp />
-    </div>
-  );
+  return <RoutingApp />;
 };
 
 export default App;
