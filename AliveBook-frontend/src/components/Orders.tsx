@@ -1,77 +1,125 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import type { AppDispatch } from '../store'; //  ใช้ type import สำหรับ TypeScript
-import { selectCart, addToCart, removeFromCart } from '../store/bookSlice';
+import React, { useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import {
+  addToCart,
+  clearCart,
+  decreaseQuantity,
+  removeFromCart,
+  selectCart,
+} from '../store/bookSlice';
+import type { AppDispatch } from '../store';
+import { ArrowRightIcon, CartIcon, TrashIcon } from './icons';
+
+const fallbackCover =
+  'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80';
 
 const Orders: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
+  const cart = useSelector(selectCart);
 
-    //  ดึงข้อมูลสินค้าในตะกร้าจาก Redux store
-    const cart = useSelector(selectCart);
+  const totalPrice = useMemo(
+    () => cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0),
+    [cart],
+  );
 
-    //  คำนวณราคารวมของสินค้าทั้งหมดในตะกร้า
-    const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalItems = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart],
+  );
 
-    return (
-        <div className="p-8">
-            {/* Header */}
-            <h1 className="text-3xl font-bold mb-6">Order Summary</h1>
-
-            {/*  ตรวจสอบว่าตะกร้าว่างหรือไม่ */}
-            {cart.length === 0 ? (
-                <p className="text-gray-500 text-center py-10">Cart is empty</p>
-            ) : (
-                <div className="space-y-4 max-w-2xl mx-auto">
-                    {/*  แสดงรายการสินค้าทีละชิ้น */}
-                    {cart.map(item => (
-                        <div key={item.id} className="flex items-center border p-4 rounded">
-                            {/*  รูปหนังสือ */}
-                            <img
-                                src={item.image_url || 'https://via.placeholder.com/80x120'}
-                                className="w-20 h-32 mr-4"
-                            />
-
-                            {/*  ข้อมูลหนังสือ */}
-                            <div className="flex-1">
-                                <h2>{item.bookname}</h2>
-                                <p>{item.ISBN}</p>
-                                <p>${item.price} x {item.quantity}</p>
-                            </div>
-
-                            {/*  ปุ่มเพิ่มจำนวน / ลบสินค้า */}
-                            <div className="flex flex-col gap-2">
-                                <button
-                                    onClick={() => dispatch(addToCart(item))}
-                                    className="bg-green-500 text-white px-2 py-1 rounded"
-                                >
-                                    +1
-                                </button>
-                                <button
-                                    onClick={() => dispatch(removeFromCart(item.id))}
-                                    className="bg-red-500 text-white px-2 py-1 rounded"
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-
-                    {/*  แสดงราคารวม */}
-                    <p className="text-right font-bold mt-4">Total: ${totalPrice}</p>
-
-                    {/*  ปุ่ม Checkout */}
-                    <div className="text-center mt-4">
-                        <button
-                            onClick={() => alert('Proceed to checkout!')}
-                            className="bg-pink-500 text-white px-4 py-2 rounded"
-                        >
-                            Checkout
-                        </button>
-                    </div>
-                </div>
-            )}
+  return (
+    <div className="orders-page">
+      <section className="section-heading">
+        <div>
+          <span className="section-eyebrow">Order summary</span>
+          <h1 className="page-title">A cleaner checkout view with clearer quantity controls.</h1>
+          <p className="muted">Minimal rows, quieter visuals, and a more compact summary than the previous design.</p>
         </div>
-    );
+        <div className="section-actions">
+          <Link to="/" className="button button--secondary">
+            Keep browsing
+          </Link>
+          {cart.length > 0 ? (
+            <button className="button button--ghost" onClick={() => dispatch(clearCart())}>
+              Clear all
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      {cart.length === 0 ? (
+        <div className="empty-state">Your cart is empty. Add books from the home page first.</div>
+      ) : (
+        <div className="orders-layout orders-layout--refined">
+          <section className="order-list surface">
+            {cart.map((item) => (
+              <article key={item.id} className="order-line">
+                <div className="order-line__media">
+                  <img src={item.image_url || fallbackCover} alt={item.bookname} />
+                </div>
+                <div className="order-line__content">
+                  <div>
+                    <h2 className="order-line__title">{item.bookname}</h2>
+                    <p className="muted">{item.ISBN}</p>
+                  </div>
+                  <div className="order-line__controls">
+                    <button className="quantity-button" onClick={() => dispatch(decreaseQuantity(item.id))}>
+                      −
+                    </button>
+                    <span className="quantity-pill">{item.quantity}</span>
+                    <button className="quantity-button" onClick={() => dispatch(addToCart(item))}>
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className="order-line__aside">
+                  <strong className="price-tag">${(Number(item.price) * item.quantity).toFixed(2)}</strong>
+                  <button className="icon-action icon-action--danger" onClick={() => dispatch(removeFromCart(item.id))}>
+                    <TrashIcon className="app-icon" />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </section>
+
+          <aside className="checkout-card checkout-card--refined">
+            <span className="section-eyebrow">Receipt</span>
+            <h3>Quiet summary panel</h3>
+            <div className="summary-list">
+              <div className="summary-list__item">
+                <span className="muted">Line items</span>
+                <strong>{cart.length}</strong>
+              </div>
+              <div className="summary-list__item">
+                <span className="muted">Books in cart</span>
+                <strong>{totalItems}</strong>
+              </div>
+              <div className="summary-list__item">
+                <span className="muted">Subtotal</span>
+                <strong>${totalPrice.toFixed(2)}</strong>
+              </div>
+            </div>
+
+            <div className="checkout-card__meta">
+              <span className="badge badge--neutral">
+                <CartIcon className="app-icon" />
+                Review complete
+              </span>
+            </div>
+
+            <button
+              className="button button--dark button--wide"
+              onClick={() => window.alert('Checkout flow placeholder: connect a real order or payment API next.')}
+            >
+              Continue
+              <ArrowRightIcon className="button__icon" />
+            </button>
+          </aside>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Orders;
