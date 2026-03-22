@@ -695,7 +695,6 @@
   .sidebar-card {
     position: static;
   }
-}
 
 @media (max-width: 820px) {
   .page-section {
