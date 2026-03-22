@@ -557,7 +557,8 @@
 }
 
 .admin-layout--refined {
-  grid-template-columns: minmax(0, 1fr) 430px;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  align-items: start;
 }
 
 .admin-shelf {
@@ -594,6 +595,19 @@
 .form-layout--refined,
 .form-grid--refined {
   gap: 1rem;
+}
+
+.form-layout--panel {
+  grid-template-columns: 1fr;
+}
+
+.form-layout--panel .form-header h1 {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  max-width: none;
+}
+
+.form-layout--panel .preview-panel {
+  position: static;
 }
 
 .form-card--refined,
@@ -641,6 +655,10 @@
   aspect-ratio: 4 / 5.25;
 }
 
+.preview-panel--panel .preview-panel__cover {
+  aspect-ratio: 4 / 4.8;
+}
+
 .empty-state {
   padding: 1.5rem;
   text-align: center;
@@ -667,6 +685,7 @@
   .orders-layout,
   .admin-layout,
   .form-layout,
+  .form-layout--panel,
   .admin-layout--refined {
     grid-template-columns: 1fr;
   }

@@ -7,13 +7,22 @@ AliveBook is a full-stack bookstore demo with a redesigned minimal frontend and 
 - **`AliveBook-frontend/`** — React + Vite storefront, orders view, and admin UI
 - **`bookstore-backend/`** — NestJS + TypeORM API for managing books
 
+## Frontend structure by role
+
+### Reader-facing pages
+- `/` — browse books, save favorites, and add to cart
+- `/orders` — review the cart and adjust quantities
+
+### Admin-facing pages
+- `/books/list` — manage catalog items and edit selected books
+- `/books/new` — create a new catalog entry
+
 ## Frontend highlights
 
 - Stronger visual redesign with a more obvious layout change
 - Icon-based favorite and cart actions
-- Featured hero section and cleaner book shelf cards
-- Minimal order summary page
-- Admin dashboard with inline editing workflow
+- Clearer separation between shopper flow and admin flow
+- Admin editor panel no longer overlaps the catalog area
 - Shared book form with live preview
 
 ## Backend highlights
@@ -72,28 +81,6 @@ npm run dev
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:3000`
 - Books API: `http://localhost:3000/books`
-
-## Main pages
-
-### `/`
-- Featured landing section
-- Icon-based favorite/cart actions
-- Floating utility panel for favorites and cart
-- Responsive shelf layout
-
-### `/orders`
-- Minimal order list
-- Compact quantity controls
-- Cleaner summary card
-
-### `/books/list`
-- Admin dashboard for catalog management
-- Icon-based edit/delete actions
-- Inline editor panel
-
-### `/books/new`
-- Shared create/edit form
-- Live cover preview
 
 ## API routes
 

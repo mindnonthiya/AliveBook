@@ -2,20 +2,22 @@
 
 React + TypeScript + Vite frontend for AliveBook.
 
-## What changed in the refreshed UI
+## UX direction in the current version
 
-- Stronger minimal visual direction with a cleaner layout and quieter color palette
-- Icon-first actions for **favorites** and **cart** instead of text-heavy buttons
-- Editorial-style home page with featured book, utility dock, and cleaner shelf cards
-- Refined orders page with compact quantity controls and a more minimal summary panel
-- Tidier admin dashboard and shared live-preview form for create/edit flows
+- **Storefront pages** are for readers: browsing, favorites, cart, and order summary
+- **Admin pages** are separate: catalog management and adding/editing books
+- Favorites and cart now use icon-first actions instead of text-heavy buttons
+- The admin edit area is now compact and fixed so it does not overlap the catalog list
 
 ## Routes
 
+### Reader-facing
 - `/` — storefront and featured shelf
 - `/orders` — order summary and quantity controls
-- `/books/list` — admin dashboard
-- `/books/new` — add book form
+
+### Admin-facing
+- `/books/list` — admin catalog dashboard
+- `/books/new` — dedicated admin page for adding a new book
 
 ## Install
 

@@ -9,10 +9,10 @@ import { selectCart, selectFavorites } from '../store/bookSlice';
 import { BookIcon, CartIcon, DashboardIcon, HeartIcon } from './icons';
 
 const links = [
-  { to: '/', label: 'Discover', end: true },
-  { to: '/orders', label: 'Orders' },
-  { to: '/books/list', label: 'Admin' },
-  { to: '/books/new', label: 'Add Book' },
+  { to: '/', label: 'Store', end: true },
+  { to: '/orders', label: 'My Orders' },
+  { to: '/books/list', label: 'Admin Catalog' },
+  { to: '/books/new', label: 'New Entry' },
 ];
 
 const RoutingApp: React.FC = () => {
@@ -31,7 +31,7 @@ const RoutingApp: React.FC = () => {
               </span>
               <span className="brand-copy">
                 <span className="brand__title">AliveBook</span>
-                <span className="brand__caption">A cleaner bookstore storefront with a minimalist admin flow.</span>
+                <span className="brand__caption">Storefront for readers, separate tools for admins.</span>
               </span>
             </Link>
 

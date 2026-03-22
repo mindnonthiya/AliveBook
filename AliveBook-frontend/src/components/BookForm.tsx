@@ -7,18 +7,20 @@ import { ArrowRightIcon, BookIcon, SparklesIcon } from './icons';
 interface BookFormProps {
   editingBook?: Book;
   onCancelEdit?: () => void;
+  mode?: 'page' | 'panel';
 }
 
 const fallbackCover =
   'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80';
 
-const BookForm: React.FC<BookFormProps> = ({ editingBook, onCancelEdit }) => {
+const BookForm: React.FC<BookFormProps> = ({ editingBook, onCancelEdit, mode = 'page' }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [bookname, setBookname] = useState('');
   const [isbn, setIsbn] = useState('');
   const [price, setPrice] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const isEditing = Boolean(editingBook);
+  const isPanelMode = mode == 'panel';
 
   useEffect(() => {
     setBookname(editingBook?.bookname ?? '');
@@ -60,12 +62,16 @@ const BookForm: React.FC<BookFormProps> = ({ editingBook, onCancelEdit }) => {
   };
 
   return (
-    <div className="form-layout form-layout--refined">
+    <div className={`form-layout form-layout--refined ${isPanelMode ? 'form-layout--panel' : ''}`.trim()}>
       <section className="form-card form-card--refined">
         <div className="form-header form-header--refined">
-          <span className="section-eyebrow">Book studio</span>
+          <span className="section-eyebrow">{isPanelMode ? 'Admin editor' : 'Admin create page'}</span>
           <h1>{isEditing ? 'Refine the selected title' : 'Create a new catalog entry'}</h1>
-          <p className="muted">The editor is now lighter, more structured, and easier to scan while you work.</p>
+          <p className="muted">
+            {isPanelMode
+              ? 'This panel is for admins only and stays compact so it will not overlap the catalog list.'
+              : 'This is the dedicated admin page for creating a new book entry with a full live preview.'}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="form-grid form-grid--refined">
@@ -136,7 +142,7 @@ const BookForm: React.FC<BookFormProps> = ({ editingBook, onCancelEdit }) => {
         </form>
       </section>
 
-      <aside className="preview-panel surface">
+      <aside className={`preview-panel surface ${isPanelMode ? 'preview-panel--panel' : ''}`.trim()}>
         <div className="preview-panel__topline">
           <span className="note-chip">
             <SparklesIcon className="app-icon" />

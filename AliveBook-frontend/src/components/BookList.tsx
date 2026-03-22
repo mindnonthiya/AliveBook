@@ -44,9 +44,9 @@ const BookList: React.FC = () => {
     <div className="admin-page">
       <section className="section-heading">
         <div>
-          <span className="section-eyebrow">Library admin</span>
+          <span className="section-eyebrow">Admin only · catalog workspace</span>
           <h1 className="page-title">A tidier dashboard for curating the catalog.</h1>
-          <p className="muted">Compact management cards on the left and a focused edit studio on the right.</p>
+          <p className="muted">This area is for admins only: the left side manages inventory and the right side edits the selected book.</p>
         </div>
         <Link to="/books/new" className="button button--dark">
           <PlusIcon className="button__icon" />
@@ -113,10 +113,10 @@ const BookList: React.FC = () => {
 
         <aside className="admin-editor-panel">
           {editingBook ? (
-            <BookForm editingBook={editingBook} onCancelEdit={() => setEditingBook(undefined)} />
+            <BookForm editingBook={editingBook} onCancelEdit={() => setEditingBook(undefined)} mode="panel" />
           ) : (
             <div className="sidebar-card sidebar-card--empty">
-              <span className="section-eyebrow">Edit studio</span>
+              <span className="section-eyebrow">Admin edit studio</span>
               <h3>Select a book to edit</h3>
               <p className="muted">Choose the pencil icon from any card and the editor will appear here with a live preview.</p>
             </div>
