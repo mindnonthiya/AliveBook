@@ -5,8 +5,8 @@ import { BooksService } from './books.service';
 import { Book } from './book.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Book])], // Register the Book entity
+  imports: [TypeOrmModule.forFeature([Book])], // Register the Book entity 
   controllers: [BooksController],
   providers: [BooksService],
 })
-export class BooksModule {}
+export class BooksModule { } 

@@ -1,253 +1,189 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
-  addToCart,
-  fetchBooks,
-  likeBook,
-  removeFromCart,
-  selectBooks,
-  selectCart,
-  selectError,
-  selectFavorites,
-  selectLoading,
+    fetchBooks,
+    selectBooks,
+    selectLoading,
+    selectError,
+    addToCart,
+    likeBook,
+    selectCart,
+    selectFavorites,
+    removeFromCart,
 } from '../store/bookSlice';
 import { type AppDispatch } from '../store';
-
-const fallbackCover =
-  'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80';
+import { useNavigate } from 'react-router-dom'; //  สำหรับ navigation ไปหน้าอื่น
 
 const Home: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const books = useSelector(selectBooks);
-  const loading = useSelector(selectLoading);
-  const error = useSelector(selectError);
-  const cart = useSelector(selectCart);
-  const favorites = useSelector(selectFavorites);
-  const [showCart, setShowCart] = useState(true);
-  const [showFavorites, setShowFavorites] = useState(false);
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate(); //  hook สำหรับเปลี่ยนหน้า
 
-  useEffect(() => {
-    dispatch(fetchBooks());
-  }, [dispatch]);
+    //  ดึงข้อมูลจาก Redux store
+    const books = useSelector(selectBooks);
+    const loading = useSelector(selectLoading);
+    const error = useSelector(selectError);
+    const cart = useSelector(selectCart);
+    const favorites = useSelector(selectFavorites);
 
-  const totalPrice = useMemo(
-    () => cart.reduce((sum, item) => sum + Number(item.price) * (item.quantity || 1), 0),
-    [cart],
-  );
+    const [showCart, setShowCart] = useState(false); //  สถานะ popup ตะกร้า
+    const [showFavorites, setShowFavorites] = useState(false); //  สถานะ popup รายการชอบ
 
-  const favoriteBooks = useMemo(
-    () => books.filter((book) => favorites.includes(book.id)),
-    [books, favorites],
-  );
+    //  ดึงข้อมูลหนังสือจาก backend เมื่อหน้าโหลด
+    useEffect(() => {
+        dispatch(fetchBooks());
+    }, [dispatch]);
 
-  return (
-    <div>
-      <section className="hero">
-        <article className="surface hero-card">
-          <span className="section-eyebrow">Curated reading experience</span>
-          <h1>Minimal bookstore UI that feels premium and calm.</h1>
-          <p>
-            Browse titles, save favorites, build an order, and manage the catalog from a cleaner
-            interface that now looks consistent across the whole project.
-          </p>
+    //  คำนวณราคารวมในตะกร้า
+    const totalPrice = cart.reduce(
+        (sum, item) => sum + Number(item.price) * (item.quantity || 1),
+        0
+    );
 
-          <div className="hero-actions">
-            <Link to="/books/new" className="button button--primary">
-              Add a new title
-            </Link>
-            <Link to="/books/list" className="button button--secondary">
-              Open admin library
-            </Link>
-          </div>
-        </article>
+    //  แสดง loading หรือ error
+    if (loading) return <p className="text-center text-gray-500">Loading books...</p>;
+    if (error) return <p className="text-center text-red-500">{error}</p>;
 
-        <aside className="metric-grid">
-          <div className="metric-card">
-            <span className="metric-card__label">Titles in catalog</span>
-            <div className="metric-card__value">{books.length}</div>
-          </div>
-          <div className="metric-card">
-            <span className="metric-card__label">Favorites saved</span>
-            <div className="metric-card__value">{favorites.length}</div>
-          </div>
-          <div className="metric-card">
-            <span className="metric-card__label">Items in cart</span>
-            <div className="metric-card__value">{cart.reduce((sum, item) => sum + item.quantity, 0)}</div>
-          </div>
-          <div className="metric-card">
-            <span className="metric-card__label">Cart total</span>
-            <div className="metric-card__value">${totalPrice.toFixed(2)}</div>
-          </div>
-        </aside>
-      </section>
+    return (
+        <div className="p-6 bg-white min-h-screen text-gray-900 relative">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-pink-400">Book Collection</h1>
 
-      <section className="section-heading">
-        <div>
-          <span className="section-eyebrow">Quick overview</span>
-          <h2>Storefront status</h2>
-        </div>
+                <div className="flex gap-6 items-center">
+                    {/*  Icon ตะกร้า */}
+                    <div className="relative cursor-pointer" onClick={() => setShowCart(!showCart)}>
+                        <span className="material-icons text-xl text-green-500">shopping_cart</span>
+                        {cart.length > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
+                                {cart.length}
+                            </span>
+                        )}
+                    </div>
 
-        <div className="section-actions">
-          <button className="button button--ghost" onClick={() => setShowCart((value) => !value)}>
-            {showCart ? 'Hide cart panel' : 'Show cart panel'}
-          </button>
-          <button
-            className="button button--ghost"
-            onClick={() => setShowFavorites((value) => !value)}
-          >
-            {showFavorites ? 'Hide favorites' : 'Show favorites'}
-          </button>
-        </div>
-      </section>
+                    {/*  Icon รายการชอบ */}
+                    <div className="relative cursor-pointer" onClick={() => setShowFavorites(!showFavorites)}>
+                        <span className="material-icons text-xl text-pink-500">favorite</span>
+                        {favorites.length > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
+                                {favorites.length}
+                            </span>
+                        )}
+                    </div>
 
-      <div className="hero" style={{ marginTop: 0 }}>
-        <div className="panel-stack">
-          {showCart ? (
-            <section className="panel">
-              <div className="price-row">
-                <div>
-                  <span className="section-eyebrow">Cart snapshot</span>
-                  <h3 style={{ margin: '0.25rem 0 0' }}>Ready for checkout</h3>
-                </div>
-                <span className="badge badge--accent">{cart.length} unique items</span>
-              </div>
-
-              {cart.length === 0 ? (
-                <div className="empty-state" style={{ marginTop: '1rem' }}>
-                  Add some books to start your order.
-                </div>
-              ) : (
-                <ul style={{ marginTop: '1rem' }}>
-                  {cart.map((book) => (
-                    <li key={book.id}>
-                      <div className="price-row">
-                        <div>
-                          <strong>{book.bookname}</strong>
-                          <div className="muted">
-                            ${Number(book.price).toFixed(2)} × {book.quantity}
-                          </div>
-                        </div>
+                    {/*  ปุ่มไปหน้า Orders */}
+                    {cart.length > 0 && (
                         <button
-                          className="button button--danger"
-                          onClick={() => dispatch(removeFromCart(book.id))}
+                            onClick={() => navigate('/orders')} //  ใช้ navigate แทน window.location.href
+                            className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
                         >
-                          Remove
+                            View Orders
                         </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          ) : null}
-
-          {showFavorites ? (
-            <section className="panel">
-              <div className="price-row">
-                <div>
-                  <span className="section-eyebrow">Favorites</span>
-                  <h3 style={{ margin: '0.25rem 0 0' }}>Saved inspiration</h3>
+                    )}
                 </div>
-                <span className="badge badge--favorite">{favoriteBooks.length} liked</span>
-              </div>
+            </div>
 
-              {favoriteBooks.length === 0 ? (
-                <div className="empty-state" style={{ marginTop: '1rem' }}>
-                  Tap the heart on any title to collect favorites.
+            {/*  Popup: Cart */}
+            {showCart && (
+                <div className="absolute right-8 top-20 bg-white border border-green-300 rounded-xl p-4 w-80 z-50 shadow-lg">
+                    <h2 className="text-lg font-bold mb-2 text-green-500">🛒 Cart</h2>
+                    {cart.length === 0 ? (
+                        <p className="text-gray-500">No items in cart.</p>
+                    ) : (
+                        <>
+                            <ul className="max-h-64 overflow-y-auto">
+                                {cart.map((book, index) => (
+                                    <li key={index} className="mb-2 border-b border-gray-200 pb-2 flex justify-between items-center">
+                                        <div>
+                                            <p className="font-semibold">{book.bookname}</p>
+                                            <p className="text-sm text-gray-500">
+                                                ${Number(book.price).toFixed(2)} x {book.quantity || 1}
+                                            </p>
+                                        </div>
+                                        {/*  ปุ่มลบสินค้าออกจากตะกร้า */}
+                                        <button
+                                            onClick={() => dispatch(removeFromCart(book.id))}
+                                            className="text-red-500 hover:text-red-600 text-sm font-semibold"
+                                        >
+                                            Remove
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="mt-2 text-right font-bold text-green-600">
+                                Total: ${totalPrice.toFixed(2)}
+                            </div>
+                        </>
+                    )}
                 </div>
-              ) : (
-                <ul style={{ marginTop: '1rem' }}>
-                  {favoriteBooks.map((book) => (
-                    <li key={book.id}>
-                      <div>
-                        <strong>{book.bookname}</strong>
-                        <div className="muted">${Number(book.price).toFixed(2)}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          ) : null}
+            )}
+
+            {/*  Popup: Favorites */}
+            {showFavorites && (
+                <div className="absolute right-8 top-20 bg-white border border-pink-300 rounded-xl p-4 w-80 z-50 shadow-lg">
+                    <h2 className="text-lg font-bold mb-2 text-pink-500">❤️ Favorite Books</h2>
+                    {favorites.length === 0 ? (
+                        <p className="text-gray-500">No favorite books yet.</p>
+                    ) : (
+                        <ul className="max-h-64 overflow-y-auto">
+                            {books
+                                .filter((book) => favorites.includes(book.id))
+                                .map((book) => (
+                                    <li key={book.id} className="mb-2 border-b border-gray-200 pb-2">
+                                        <p className="font-semibold">{book.bookname}</p>
+                                        <p className="text-sm text-gray-500">
+                                            ${Number(book.price).toFixed(2)}
+                                        </p>
+                                    </li>
+                                ))}
+                        </ul>
+                    )}
+                </div>
+            )}
+
+            {/*  Book List */}
+            <div className="flex flex-col gap-4">
+                {books.map((book) => (
+                    <div
+                        key={book.id}
+                        className="flex items-center bg-pink-50 border border-pink-200 rounded-xl p-4 shadow-sm hover:shadow-pink-300 transition"
+                    >
+                        {/*  Book Image */}
+                        <img
+                            src={book.image_url || "https://cdn.pixabay.com/photo/2020/09/30/12/18/books-5615562_1280.jpg"}
+                            alt={book.bookname}
+                            className="w-24 h-36 object-cover rounded-lg shadow-md mr-4"
+                        />
+
+                        {/*  Book Info */}
+                        <div className="flex-1">
+                            <h2 className="text-xl font-semibold text-pink-500">{book.bookname}</h2>
+                            <p className="text-gray-600">Auther: {book.ISBN}</p>
+                            <p className="text-gray-700 font-medium">Price: ${Number(book.price).toFixed(2)}</p>
+                        </div>
+
+                        {/*  Actions: Add to cart / Like */}
+                        <div className="flex flex-col gap-2 ml-4">
+                            <button
+                                onClick={() => dispatch(addToCart(book))} //  เพิ่มหนังสือไปตะกร้า
+                                className="bg-green-400 text-white px-3 py-1 rounded-md hover:bg-green-500 transition"
+                            >
+                                Add to Cart
+                            </button>
+                            <button
+                                onClick={() => dispatch(likeBook(book.id))} //  เพิ่ม/ลบรายการชอบ
+                                className={`px-3 py-1 rounded-md transition ${favorites.includes(book.id)
+                                    ? 'bg-pink-500 text-white'
+                                    : 'bg-pink-100 hover:bg-pink-500 text-white'
+                                    }`}
+                            >
+                                ❤️
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
-
-        <section className="surface hero-card">
-          <span className="section-eyebrow">Design direction</span>
-          <h3 style={{ margin: '0.3rem 0 0', fontSize: '1.8rem', letterSpacing: '-0.04em' }}>
-            Airy spacing, soft cards, clear typography.
-          </h3>
-          <p>
-            The updated interface keeps actions visible, reduces noisy colors, and gives each page a
-            more refined editorial feel.
-          </p>
-          <div className="pill-row" style={{ marginTop: '1rem' }}>
-            <span className="badge badge--neutral">Glassmorphism surfaces</span>
-            <span className="badge badge--neutral">Responsive cards</span>
-            <span className="badge badge--neutral">Consistent action buttons</span>
-          </div>
-        </section>
-      </div>
-
-      <section className="section-heading">
-        <div>
-          <span className="section-eyebrow">Collection</span>
-          <h2>Featured catalog</h2>
-        </div>
-      </section>
-
-      {loading ? <div className="empty-state">Loading books…</div> : null}
-      {error ? <div className="empty-state">{error}</div> : null}
-      {!loading && !error && books.length === 0 ? (
-        <div className="empty-state">No books found yet. Add your first title from the admin area.</div>
-      ) : null}
-
-      <div className="book-grid">
-        {books.map((book) => {
-          const isFavorite = favorites.includes(book.id);
-
-          return (
-            <article className="book-card" key={book.id}>
-              <div className="book-card__media">
-                <img src={book.image_url || fallbackCover} alt={book.bookname} />
-              </div>
-              <div className="book-card__body">
-                <div className="pill-row">
-                  <span className="badge badge--accent">Book #{book.id}</span>
-                  {isFavorite ? <span className="badge badge--favorite">Liked</span> : null}
-                </div>
-
-                <h3 className="book-card__title" style={{ marginTop: '0.9rem' }}>
-                  {book.bookname}
-                </h3>
-                <p className="muted" style={{ marginTop: '0.35rem' }}>
-                  {book.ISBN}
-                </p>
-
-                <div className="price-row" style={{ marginTop: '1rem' }}>
-                  <span className="price-tag">${Number(book.price).toFixed(2)}</span>
-                  <button
-                    className={`icon-button ${isFavorite ? 'icon-button--active' : ''}`}
-                    onClick={() => dispatch(likeBook(book.id))}
-                    aria-label={isFavorite ? `Unlike ${book.bookname}` : `Like ${book.bookname}`}
-                    title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                  >
-                    ♥
-                  </button>
-                </div>
-
-                <div className="form-actions" style={{ marginTop: '1rem' }}>
-                  <button className="button button--primary" onClick={() => dispatch(addToCart(book))}>
-                    Add to cart
-                  </button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Home;
