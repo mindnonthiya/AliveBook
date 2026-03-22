@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 
-dotenv.config(); // โหลด .env file 
+dotenv.config(); // โหลด .env file
 
 console.log('Environment variables:', {
   DB_HOST: process.env.DB_HOST,
