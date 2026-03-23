@@ -6,7 +6,7 @@ import Orders from './Orders';
 import BookForm from './BookForm';
 import BookList from './BookList';
 import { selectCart, selectFavorites } from '../store/bookSlice';
-import { BookIcon, CartIcon, DashboardIcon, HeartIcon } from './icons';
+import { CartIcon, DashboardIcon, HeartIcon } from './icons';
 
 const links = [
   { to: '/', label: 'Store', end: true },
@@ -26,12 +26,8 @@ const RoutingApp: React.FC = () => {
         <header className="site-header">
           <div className="container site-header__inner">
             <Link to="/" className="brand brand--interactive">
-              <span className="brand-mark">
-                <BookIcon className="app-icon" />
-              </span>
               <span className="brand-copy">
                 <span className="brand__title">AliveBook</span>
-                <span className="brand__caption">Storefront for readers, separate tools for admins.</span>
               </span>
             </Link>
 
