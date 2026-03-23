@@ -11,15 +11,17 @@ console.log('Environment variables:', {
   DB_NAME: process.env.DB_NAME,
 });
 
-// สร้าง Server
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // เปิด CORS
   app.enableCors({
-    origin: 'http://localhost:5173', // อนุญาตเฉพาะ frontend ของเรา
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true, // ถ้าต้องใช้ cookies
+    origin: [
+      'http://localhost:5173',
+      'https://stupendous-paletas-239219.netlify.app',
+      'https://alive-book-qfvsy5kvb-mindnonthiyas-projects.vercel.app', // ✨ เพิ่มตัวนี้เข้าไป (ตาม Error ของคุณ)
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
   });
 
   app.useGlobalPipes(new ValidationPipe());
